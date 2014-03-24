@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = Livestatus::VERSION
   s.authors     = ["Matthew Delves"]
   s.email       = ["matt@reformedsoftware.com"]
-  s.homepage    = "github.com/mattdelves/livestatus"
+  s.homepage    = "https://github.com/mattdelves/livestatus"
   s.summary     = "Record and track stats of your page and display in realtime"
   s.description = "Record and track stats of your page and display in realtime"
 
