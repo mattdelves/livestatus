@@ -21,4 +21,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec-rails", "~> 3.0.0.beta2"
   s.add_development_dependency "rspec-mocks", "~> 3.0.0.beta2"
   s.add_development_dependency "pry"
+  s.add_development_dependency 'combustion', '~> 0.5.1'
 end
