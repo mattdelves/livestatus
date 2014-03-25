@@ -8,6 +8,9 @@ Combustion.initialize! :action_controller,
                        :sprockets
 
 require 'rspec/rails'
+require 'redis'
+
+REDIS = Redis.new
 
 RSpec.configure do |config|
 
