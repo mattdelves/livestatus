@@ -53,7 +53,9 @@ module Livestatus
     end
 
     def self.recent controller, action, status
-      REDIS.lrange "#{controller}_#{action}_#{status}", 0, 100
+      key = "#{controller}_#{action}_#{status}"
+      length = REDIS.llen "#{controller}_#{action}_#{status}"
+      REDIS.lrange key, (length.to_i - 100), length.to_i
     end
 
   end

@@ -40,11 +40,11 @@ describe Livestatus::Statistic do
 
   it "show recent stats" do
     REDIS.flushall
-    10.times do
+    200.times do
       Livestatus::Statistic.save_notification @notification
     end
 
-    expect((Livestatus::Statistic.recent @notification[:controller], @notification[:action], @notification[:status]).size).to eql 10
+    expect((Livestatus::Statistic.recent @notification[:controller], @notification[:action], @notification[:status]).size).to eql 100
   end
 
 end
