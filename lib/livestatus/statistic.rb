@@ -43,7 +43,8 @@ module Livestatus
     end
 
     def save
-      REDIS.rpush "#{@controller}_#{@action}_#{@status}", "#{@timestamp.to_i}:#{self.to_json}"
+      key = "#{@controller}_#{@action}_#{@status}"
+      REDIS.rpush "#{key}", "#{@timestamp.to_i}:#{self.to_json}"
     end
 
     def self.save_notification notification
@@ -55,7 +56,9 @@ module Livestatus
     def self.recent controller, action, status
       key = "#{controller}_#{action}_#{status}"
       length = REDIS.llen "#{controller}_#{action}_#{status}"
-      REDIS.lrange key, (length.to_i - 100), length.to_i
+      start = length - 100
+      start = 0 if start < 0
+      REDIS.lrange key, start, length
     end
 
   end
