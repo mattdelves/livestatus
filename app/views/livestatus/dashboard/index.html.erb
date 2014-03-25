@@ -1,0 +1,9 @@
+<script language="javascript">
+  var source = new EventSource("/status/stream");
+            source.addEventListener("update", function(evt) {
+              // Do Awesome here
+              console.log(evt);
+            });
+</script>
+
+<h1>Hi there!</h1>
