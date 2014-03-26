@@ -108,6 +108,7 @@ GEM
     thread_safe (0.3.1)
       atomic (>= 1.1.7, < 2)
     tilt (1.4.1)
+    timecop (0.7.1)
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
@@ -122,3 +123,4 @@ DEPENDENCIES
   pry
   rspec-mocks (~> 3.0.0.beta2)
   rspec-rails (~> 3.0.0.beta2)
+  timecop

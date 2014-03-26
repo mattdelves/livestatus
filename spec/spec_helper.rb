@@ -9,6 +9,7 @@ Combustion.initialize! :action_controller,
 
 require 'rspec/rails'
 require 'redis'
+require 'timecop'
 
 REDIS = Redis.new
 
