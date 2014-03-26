@@ -32,6 +32,8 @@ module Livestatus
     def to_json
       {
        controller: @controller,
+       timestring: @timestamp.utc,
+       timestamp: @timestamp.utc.to_i,
        action: @action,
        view_runtime: @view_runtime,
        db_runtime: @db_runtime,
@@ -44,7 +46,7 @@ module Livestatus
 
     def save
       key = "#{@controller}_#{@action}_#{@status}"
-      REDIS.rpush "#{key}", "#{@timestamp.to_i}:#{self.to_json}"
+      REDIS.rpush "#{key}", "#{self.to_json}"
     end
 
     def self.save_notification notification

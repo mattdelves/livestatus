@@ -4,6 +4,7 @@ require 'livestatus/statistic'
 describe Livestatus::Statistic do
 
   before :each do
+    Timecop.freeze(Time.utc(2014, 3, 26, 12, 0, 0))
     @notification = {
       controller: "FoobarController",
       action: "home",
@@ -19,7 +20,7 @@ describe Livestatus::Statistic do
   end
 
   after :each do
-
+    Timecop.return
   end
 
   it "formats from notifications hash" do
@@ -27,7 +28,7 @@ describe Livestatus::Statistic do
   end
 
   it "formats the object as json" do
-    expect(@statistic.to_json).to eql "{\"controller\":\"FoobarController\",\"action\":\"home\",\"view_runtime\":220.13,\"db_runtime\":12.0,\"format\":\"html\",\"method\":null,\"path\":\"/\",\"params\":{\"controller\":\"foobar\",\"action\":\"home\"}}"
+    expect(@statistic.to_json).to eql "{\"controller\":\"FoobarController\",\"timestring\":\"2014-03-26T12:00:00Z\",\"timestamp\":1395835200,\"action\":\"home\",\"view_runtime\":220.13,\"db_runtime\":12.0,\"format\":\"html\",\"method\":null,\"path\":\"/\",\"params\":{\"controller\":\"foobar\",\"action\":\"home\"}}"
   end
 
   it "saves to redis with the key as the timestamp" do
