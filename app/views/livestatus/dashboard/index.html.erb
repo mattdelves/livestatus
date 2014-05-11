@@ -1,31 +1,51 @@
-<script language="javascript">
-  var source = new EventSource("/status/stream");
-            source.addEventListener("update", function(evt) {
-              // Do Awesome here
-              var currentDate = new Date();
-              var day = currentDate.getDay();
-              var month = currentDate.getMonth();
-              var year = currentDate.getFullYear();
-              var hour = currentDate.getHours();
-              var minute = currentDate.getMinutes();
-              var second = currentDate.getSeconds();
-              var dateString = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;
-              $('#feed').html('<p>Hi there again at ' + dateString + '</p>');
-              var stats = JSON.parse(evt.data).stats;
-              for (i in stats) {
-                var stat = JSON.parse(stats[i]);
-                $('#feed').append('<p>' + stat.controller + '#'
-                                  + stat.action + ' accessed at '
-                                  + stat.timestring + '</p>'
-                                  + '<p>The view took ' + stat.view_runtime + 'ms to render</p>'
-                );
-                console.log(stat);
-              }
-            });
-</script>
-
 <h1>Hi there!</h1>
+
+<div id="graph">
+
+</div>
 
 <div id="feed">
   <p>This will be updated with recent queries</p>
 </div>
+
+<script language="javascript">
+  var source = new EventSource("/status/stream");
+  var data = [{x: 0, y: 0}];
+  var graph = new Rickshaw.Graph( {
+    element: document.querySelector("#graph"),
+    width: 300,
+    height: 200,
+    series: [{
+      color: 'steelblue',
+      data: data
+    }]
+  });
+
+  graph.render();
+
+  source.addEventListener("update", function(evt) {
+    var currentDate = new Date();
+    var day = currentDate.getDay();
+    var month = currentDate.getMonth();
+    var year = currentDate.getFullYear();
+    var hour = currentDate.getHours();
+    var minute = currentDate.getMinutes();
+    var second = currentDate.getSeconds();
+    var dateString = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;
+    $('#feed').html('<p>Last updated at ' + dateString + '</p>');
+    var stats = JSON.parse(evt.data).stats;
+    data.length = 0;
+    for (i in stats) {
+      var stat = JSON.parse(stats[i]);
+      data.push({x: stat.timestamp, y: stat.view_runtime});
+      $('#feed').append('<p>' + stat.controller + '#'
+        + stat.action + ' accessed at '
+        + stat.timestring + '</p>'
+        + '<p>The view took ' + stat.view_runtime + 'ms to render</p>'
+      );
+    }
+
+    graph.update();
+
+  });
+</script>
