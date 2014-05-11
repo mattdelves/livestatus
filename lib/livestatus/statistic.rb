@@ -10,7 +10,8 @@ module Livestatus
                   :method,
                   :path,
                   :status,
-                  :params
+                  :params,
+                  :key
 
     def initialize options
       @timestamp = Time.now
@@ -23,14 +24,14 @@ module Livestatus
       @path   = options[:path]
       @status = options[:status]
       @params = options[:params]
+      @key    = "#{@controller}_#{@action}".gsub("::", '_').downcase
+      @key    = "#{@key}_#{status}" if @status
       @influxdb = ::InfluxDB::Client.new "livestatus", host: "localhost"
     end
 
-    def to_json
+    def data
       {
        controller: @controller,
-       timestring: @timestamp.utc,
-       timestamp: @timestamp.utc.to_i,
        action: @action,
        view_runtime: @view_runtime,
        db_runtime: @db_runtime,
@@ -38,35 +39,20 @@ module Livestatus
        method: @method,
        path: @path,
        params: @params
-      }.to_json
-    end
-
-    def save(key, data)
-      @influxdb.write_point(key, data)
-    end
-
-    def save_view_runtime
-      key = key_from_components(@controller, @action, @status.to_s, "view_runtime")
-      data = {
-        value: @view_runtime,
-        time: @timestamp.utc.to_i
       }
-      self.save(key, data)
     end
 
-    def save_db_runtime
-      key = key_from_components(@controller, @action, "", "db_runtime")
-      data = {
-        value: @db_runtime,
-        time: @timestamp.utc.to_i
-      }
-      self.save(key, data)
+    def to_json
+      self.data.to_json
+    end
+
+    def save
+      @influxdb.write_point(@key, self.data)
     end
 
     def self.save_notification notification
       statistic = self.new notification
-      statistic.save_view_runtime if statistic.view_runtime.to_i > 0
-      statistic.save_db_runtime if statistic.db_runtime.to_i > 0
+      statistic.save
       statistic
     end
 
@@ -80,7 +66,8 @@ module Livestatus
     def self.series
       influxdb = ::InfluxDB::Client.new "livestatus", host: "localhost"
       query = "list series"
-      influxdb.query(query)
+      results = influxdb.query(query)
+      results.keys.sort
     end
 
     def key_from_components(controller, action, status, type)

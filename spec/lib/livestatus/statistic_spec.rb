@@ -31,7 +31,7 @@ describe Livestatus::Statistic do
   end
 
   it "formats the object as json" do
-    expect(@statistic.to_json).to eql "{\"controller\":\"FoobarController\",\"timestring\":\"2014-03-26T12:00:00Z\",\"timestamp\":1395835200,\"action\":\"home\",\"view_runtime\":220.13,\"db_runtime\":12.0,\"format\":\"html\",\"method\":null,\"path\":\"/\",\"params\":{\"controller\":\"foobar\",\"action\":\"home\"}}"
+    expect(@statistic.to_json).to eql "{\"controller\":\"FoobarController\",\"action\":\"home\",\"view_runtime\":220.13,\"db_runtime\":12.0,\"format\":\"html\",\"method\":null,\"path\":\"/\",\"params\":{\"controller\":\"foobar\",\"action\":\"home\"}}"
   end
 
 #  it "saves to redis with the key as the timestamp" do
@@ -53,7 +53,7 @@ describe Livestatus::Statistic do
   end
 
   it "gets all of the available keys" do
-    json_results = {"foobarcontroller_home_200_view_runtime"=>[], "foobarcontroller_home_db_runtime"=>[]}
+    json_results = {"foobar_home_200_view_runtime"=>[], "foobar_home_db_runtime"=>[]}
     expect(@influxdb_double).to receive(:query).and_return(json_results)
     expect((Livestatus::Statistic.series).size).to eql 2
   end

@@ -17,7 +17,9 @@ module Livestatus
 
       begin
         loop do
-          stats = Statistic.recent "DashboardController", "home", 200
+          keys = Statistic.series
+          stats = []
+          keys.each { |key| stats << {key: key, values: Statistic.recent(key)} }
           sse.write({ stats: stats }, event: "update" )
           sleep 1
         end
