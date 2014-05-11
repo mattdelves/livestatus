@@ -1,9 +1,5 @@
-require 'redis'
-
 module Livestatus
   class Statistic
-
-    REDIS = ::Redis.new
 
     attr_accessor :timestamp,
                   :controller,
@@ -27,6 +23,7 @@ module Livestatus
       @path   = options[:path]
       @status = options[:status]
       @params = options[:params]
+      @influxdb = ::InfluxDB::Client.new "livestatus", host: "localhost"
     end
 
     def to_json
@@ -44,23 +41,55 @@ module Livestatus
       }.to_json
     end
 
-    def save
-      key = "#{@controller}_#{@action}_#{@status}"
-      REDIS.rpush "#{key}", "#{self.to_json}"
+    def save(key, data)
+      @influxdb.write_point(key, data)
+    end
+
+    def save_view_runtime
+      key = key_from_components(@controller, @action, @status.to_s, "view_runtime")
+      data = {
+        value: @view_runtime,
+        time: @timestamp.utc.to_i
+      }
+      self.save(key, data)
+    end
+
+    def save_db_runtime
+      key = key_from_components(@controller, @action, "", "db_runtime")
+      data = {
+        value: @db_runtime,
+        time: @timestamp.utc.to_i
+      }
+      self.save(key, data)
     end
 
     def self.save_notification notification
       statistic = self.new notification
-      statistic.save
+      statistic.save_view_runtime if statistic.view_runtime.to_i > 0
+      statistic.save_db_runtime if statistic.db_runtime.to_i > 0
       statistic
     end
 
-    def self.recent controller, action, status
-      key = "#{controller}_#{action}_#{status}"
-      length = REDIS.llen "#{controller}_#{action}_#{status}"
-      start = length - 100
-      start = 0 if start < 0
-      REDIS.lrange key, start, length
+    def self.recent(key, starttime = 1.hour.ago, endtime = Time.now.utc, limit = 100)
+      influxdb = ::InfluxDB::Client.new "livestatus", host: "localhost"
+      query = "select * from #{key} where time > #{starttime.to_i}s and time < #{endtime.to_i}s limit #{limit}"
+      results = influxdb.query(query)
+      results[key]
+    end
+
+    def self.series
+      influxdb = ::InfluxDB::Client.new "livestatus", host: "localhost"
+      query = "list series"
+      influxdb.query(query)
+    end
+
+    def key_from_components(controller, action, status, type)
+      key = "#{controller}_#{action}"
+      unless status.empty?
+        key = "#{key}_#{status}"
+      end
+      key = "#{key}_#{type}"
+      key.gsub('::', '_').downcase
     end
 
   end
