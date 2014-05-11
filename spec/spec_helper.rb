@@ -8,10 +8,8 @@ Combustion.initialize! :action_controller,
                        :sprockets
 
 require 'rspec/rails'
-require 'redis'
+require 'influxdb'
 require 'timecop'
-
-REDIS = Redis.new
 
 RSpec.configure do |config|
 
