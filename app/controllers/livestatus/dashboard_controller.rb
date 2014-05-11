@@ -6,7 +6,7 @@ module Livestatus
     include ActionController::Live
 
     def index
-      # Write some stuff to the output stream
+      @series = Statistic.series
     end
 
     def stream
@@ -19,7 +19,19 @@ module Livestatus
         loop do
           keys = Statistic.series
           stats = []
-          keys.each { |key| stats << {key: key, values: Statistic.recent(key)} }
+          keys.each do |key|
+            values = Statistic.recent(key)
+            next unless values && values.count > 0
+            action_type = "view load time"
+            action_type = "db load time" if values[0]["db_runtime"] && values[0]["db_runtime"].to_f > 0
+            stats << {
+              key: key,
+              values: values,
+              controller: values[0]["controller"],
+              action: values[0]["action"],
+              type: action_type
+            }
+          end
           sse.write({ stats: stats }, event: "update" )
           sleep 1
         end
