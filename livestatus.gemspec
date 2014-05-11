@@ -19,6 +19,8 @@ Gem::Specification.new do |s|
   s.add_dependency "influxdb", "~> 0.1.7"
   s.add_dependency 'sass-rails', '~> 4.0.0'
   s.add_dependency 'bootstrap-sass', '~> 3.1.1'
+  s.add_dependency 'd3_rails'
+  s.add_dependency 'rickshaw_rails'
 
   # Development dependencies
   s.add_development_dependency "rspec-rails", "~> 3.0.0.beta2"

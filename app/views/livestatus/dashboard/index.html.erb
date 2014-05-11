@@ -1,37 +1,56 @@
-<script language="javascript">
-  var source = new EventSource("/status/stream");
-            source.addEventListener("update", function(evt) {
-              // Do Awesome here
-              var currentDate = new Date();
-              var day = currentDate.getDay();
-              var month = currentDate.getMonth();
-              var year = currentDate.getFullYear();
-              var hour = currentDate.getHours();
-              var minute = currentDate.getMinutes();
-              var second = currentDate.getSeconds();
-              var dateString = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;
-              $('#feed').html('<p>Hi there again at ' + dateString + '</p>');
-              var stats = JSON.parse(evt.data).stats;
-              for (index in stats) {
-                var stat = stats[index];
-                var values = stat.values;
-                if (values && values.length > 0) {
-                  $('#feed').append('<h3>' + values[0].controller + ' ' + values[0].action + '</h3>');
-                  for (j in values) {
-                    var result = values[j];
-                    if (result.view_runtime > 0) {
-                      $('#feed').append('<p>Time: ' + result.time + ' -- Value: ' + result.view_runtime + '</p>');
-                    } else if (result.db_runtime > 0) {
-                      $('#feed').append('<p>Time: ' + result.time + ' -- Value: ' + result.db_runtime + '</p>');
-                    }
-                  }
-                }
-              }
-            });
-</script>
-
-<h1>Hi there!</h1>
+<h1>LiveStatus</h1>
 
 <div id="feed">
   <p>This will be updated with recent queries</p>
 </div>
+
+<div id="graph">
+
+</div>
+
+<script language="javascript">
+  var source = new EventSource("/status/stream");
+  var data = [{x: 0, y: 0}];
+  var graph = new Rickshaw.Graph( {
+    element: document.querySelector("#graph"),
+    width: 300,
+    height: 200,
+    series: [{
+      color: 'steelblue',
+      data: data
+    }]
+  });
+
+  graph.render();
+
+  source.addEventListener("update", function(evt) {
+    var currentDate = new Date();
+    var day = currentDate.getDay();
+    var month = currentDate.getMonth();
+    var year = currentDate.getFullYear();
+    var hour = currentDate.getHours();
+    var minute = currentDate.getMinutes();
+    var second = currentDate.getSeconds();
+    var dateString = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;
+    $('#feed').html('<p>Last updated at ' + dateString + '</p>');
+    $('#feed').html('<p>Hi there again at ' + dateString + '</p>');
+    var stats = JSON.parse(evt.data).stats;
+    for (index in stats) {
+      var stat = stats[index];
+      var values = stat.values;
+      if (values && values.length > 0) {
+        $('#feed').append('<h3>' + values[0].controller + ' ' + values[0].action + '</h3>');
+        for (j in values) {
+          var result = values[j];
+          if (result.view_runtime > 0) {
+            $('#feed').append('<p>Time: ' + result.time + ' -- Value: ' + result.view_runtime + '</p>');
+          } else if (result.db_runtime > 0) {
+            $('#feed').append('<p>Time: ' + result.time + ' -- Value: ' + result.db_runtime + '</p>');
+          }
+        }
+      }
+    }
+  graph.update();
+
+  });
+</script>
