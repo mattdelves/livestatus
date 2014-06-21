@@ -8,30 +8,39 @@
     <meta name="author" content="">
 
     <title>Live Status</title>
-    <%= stylesheet_link_tag    "application", media: "all" %>
-    <%= javascript_include_tag "application" %>
+    <%= stylesheet_link_tag    "livestatus/application", media: "all" %>
+    <%= javascript_include_tag "livestatus/application" %>
     <%= csrf_meta_tags %>
   </head>
 
   <body>
 
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a href="#" class="navbar-brand">Live Status</a>
+<header class="navigation">
+  <div class="menu-wrapper">
+    <a href="javascript:void(0)" class="logo">
+      <img src="https://raw.githubusercontent.com/thoughtbot/refills/master/source/images/placeholder_logo_1.png" alt="">
+    </a>
+    <div class="nav">
+      <ul id="navigation-menu">
+        <li class="nav-link"><a href="javascript:void(0)">LiveStatus</a></li>
+      </ul>
+    </div>
+    <div class="navigation-tools">
+      <div class="search-bar">
+        <div class="search-and-submit">
+          <input type="search" placeholder="Enter Search" />
+          <button type="submit">
+            <img src="https://raw.githubusercontent.com/thoughtbot/refills/master/source/images/search-icon.png" alt="">
+          </button>
+        </div>
+      </div>
+      <a href="javascript:void(0)" class="sign-up">Sign Up</a>
     </div>
   </div>
-</div>
+</header>
 
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-sm-3 col-md-2 sidebar">
-
-    </div>
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-      <%= yield %>
-    </div>
-  </div>
-</div>
+<section class="container">
+  <%= yield %>
+</section>
   </body>
 </html>
