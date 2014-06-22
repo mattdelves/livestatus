@@ -2,27 +2,82 @@
 
 </div>
 
-<% @series.each_with_index do |series, index| %>
-<div id="graph<%= index %>">
+<div class="grid-items">
+  <% @series.each_with_index do |series, index| %>
+    <div id="graph<%= index %>" class="grid-item">
 
+    </div>
+  <% end %>
 </div>
-<% end %>
+
 
 <script language="javascript">
 
 function createGraph(selector, data) {
+
+  var graphdiv = $( "<div id='" + selector + "_graph' />");
+  var y_axis   = $( "<div id='" + selector + "_yaxis' />");
+
+  var container = $(selector);
+
+  var axis_width = 40;
+  var graph_width = 540;
+  var container_width = graph_width + axis_width;
+  var graph_height = 350;
+  var height = graph_height + 125;
+
+  var palette = new Rickshaw.Color.Palette();
+
+  y_axis.addClass("y_axis");
+  y_axis.css("display", "inline");
+  y_axis.css("float", "left");
+  y_axis.css("width", axis_width);
+  y_axis.css("height", graph_height);
+
+  graphdiv.addClass("chart");
+  graphdiv.css("width", graph_width);
+  graphdiv.css("height", graph_height);
+  graphdiv.css("float", "right");
+  graphdiv.css("display", "inline");
+
+  container.addClass("graph-container");
+  container.width(container_width);
+  container.height(height);
+
+  container.append(y_axis);
+  container.append(graphdiv);
+
+  var unit = {}
+  unit.formatter = function(d) { return moment(d).format('hh:mm:ss a')};
+  unit.name = "5 minutes";
+  unit.seconds = 60 * 60;
+
   var graph;
   graph = new Rickshaw.Graph( {
-    element: document.querySelector(selector),
-    width: 300,
-    height: 200,
+    element: graphdiv[0],
+    width: graph_width,
+    height: graph_height,
     renderer: 'line',
     series: [{
       color: 'steelblue',
       data: data
     }]
   });
-  graph.update();
+
+  var y_ticks = new Rickshaw.Graph.Axis.Y({
+    graph: graph,
+    orientation: 'left',
+    tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+    element: y_axis[0]
+  });
+
+  var x_axis = new Rickshaw.Graph.Axis.Time({
+    graph: graph,
+    timeUnit: unit,
+    timeFixture: new Rickshaw.Fixtures.Time.Local()
+  });
+
+  graph.render();
 }
 
 </script>
